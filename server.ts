@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,22 +11,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// Cloud Run and deployment environments provide PORT via process.env.PORT, default to 3000
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '10mb' }));
 
 // Serve static assets from public folder (favicon, icons, etc.)
 app.use(express.static(path.resolve(__dirname, 'public')));
 
-// Initialize GoogleGenAI client on the server side
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || '',
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+// Helper to get GoogleGenAI client
+function getGenAIClient(): GoogleGenAI {
+  const apiKey = process.env.GEMINI_API_KEY || '';
+  return new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      },
     },
-  },
-});
+  });
+}
 
 /**
  * Converts raw 16-bit linear PCM audio buffer to a valid RIFF/WAV audio buffer.
@@ -37,11 +42,9 @@ function pcmToWav(
   numChannels: number = 1,
   bitsPerSample: number = 16
 ): Buffer {
-  // If the buffer already begins with "RIFF" (WAV), return as is
   if (pcmBuffer.length >= 4 && pcmBuffer.toString('ascii', 0, 4) === 'RIFF') {
     return pcmBuffer;
   }
-  // If the buffer is MP3 (starts with "ID3" or sync bytes 0xFF, 0xFB/F3), return as is
   if (pcmBuffer.length >= 3 && pcmBuffer.toString('ascii', 0, 3) === 'ID3') {
     return pcmBuffer;
   }
@@ -91,6 +94,8 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     hasApiKey: Boolean(process.env.GEMINI_API_KEY),
+    nodeEnv: process.env.NODE_ENV || 'development',
+    port: PORT,
   });
 });
 
@@ -118,9 +123,11 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
 
     if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({
-        error: 'GEMINI_API_KEY environment variable is not configured on the server.',
+        error: 'GEMINI_API_KEY environment variable is not configured. Please ensure your Gemini API key is set in AI Studio Secrets.',
       });
     }
+
+    const ai = getGenAIClient();
 
     // Build style and pacing instructions for natural speech synthesis
     let paceDescription = 'moderate normal pace';
@@ -143,7 +150,7 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
       ? `${style}. Spoken clearly in ${langName}, with ${paceDescription} and ${pitchDescription}.`
       : `High-quality studio voiceover spoken naturally and expressively in ${langName}. Clean diction with ${paceDescription} and ${pitchDescription}.`;
 
-    // Candidate models to try: user requested gemini-2.5-flash-preview-tts; fallback to gemini-3.8-flash-lite-tts
+    // Try canonical Gemini TTS models
     const modelsToTry = [
       'gemini-2.5-flash-preview-tts',
       'gemini-3.8-flash-lite-tts',
@@ -189,7 +196,6 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
 
         if (rawBase64) {
           const rawBuffer = Buffer.from(rawBase64, 'base64');
-          // Parse sample rate if present (e.g. audio/pcm;rate=24000)
           let sampleRate = 24000;
           const rateMatch = sourceMime.match(/rate=(\d+)/);
           if (rateMatch && rateMatch[1]) {
@@ -251,6 +257,12 @@ app.post('/api/tts/preview', async (req: Request, res: Response) => {
         audioUrl: `data:${cached.mimeType};base64,${cached.audioBase64}`,
       });
     }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY is not set.' });
+    }
+
+    const ai = getGenAIClient();
 
     // Short greeting phrases tailored to each language
     const samplePhrases: Record<string, string> = {
@@ -324,13 +336,23 @@ app.post('/api/tts/preview', async (req: Request, res: Response) => {
 
 // Serve frontend in dev via Vite middlewares, or static in production
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
-    const { createServer } = await import('vite');
-    const vite = await createServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (!isProduction) {
+    try {
+      const { createServer } = await import('vite');
+      const vite = await createServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+    } catch (e) {
+      console.warn('Vite middleware could not be loaded, falling back to static files:', e);
+      app.use(express.static(path.resolve(__dirname, 'dist')));
+      app.get('*', (_req: Request, res: Response) => {
+        res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+      });
+    }
   } else {
     app.use(express.static(path.resolve(__dirname, 'dist')));
     app.get('*', (_req: Request, res: Response) => {
@@ -338,8 +360,8 @@ async function startServer() {
     });
   }
 
-  app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`VoiceOver Pro server listening on port ${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`VoiceOver Pro server listening on 0.0.0.0:${PORT} (NODE_ENV: ${process.env.NODE_ENV || 'development'})`);
   });
 }
 

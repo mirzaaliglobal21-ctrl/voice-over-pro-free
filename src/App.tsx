@@ -116,10 +116,17 @@ export default function App() {
 
       setLoadingStep('Synthesizing studio voice waves...');
 
-      const data = await response.json();
+      let data: any;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        throw new Error(
+          `Server response error (${response.status} ${response.statusText}). Server might be initializing.`
+        );
+      }
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to generate voice. Please check API status.');
+        throw new Error(data.error || `Voice generation error (${response.status}).`);
       }
 
       setLoadingStep('Formatting 24kHz WAV audio stream...');
