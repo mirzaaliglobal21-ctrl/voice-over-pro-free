@@ -1,0 +1,160 @@
+import { Language, VoiceOption, SampleScript } from '../types';
+
+export const LANGUAGES: Language[] = [
+  {
+    code: 'ur',
+    name: 'Urdu',
+    nativeName: 'اردو',
+    flag: '🇵🇰',
+    dir: 'rtl',
+    fontClass: 'font-urdu',
+  },
+  {
+    code: 'en',
+    name: 'English',
+    nativeName: 'English',
+    flag: '🇬🇧',
+    dir: 'ltr',
+    fontClass: 'font-sans',
+  },
+  {
+    code: 'hi',
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+    flag: '🇮🇳',
+    dir: 'ltr',
+    fontClass: 'font-sans',
+  },
+  {
+    code: 'ar',
+    name: 'Arabic',
+    nativeName: 'العربية',
+    flag: '🇸🇦',
+    dir: 'rtl',
+    fontClass: 'font-arabic',
+  },
+];
+
+export const VOICES: VoiceOption[] = [
+  {
+    id: 'Kore',
+    name: 'Kore',
+    gender: 'female',
+    tone: 'Warm & Expressive',
+    role: 'Storyteller / Narration',
+    description: 'Natural, soothing voice with rich emotional cadence. Perfect for audiobooks and explainer videos.',
+    tags: ['Warm', 'Gentle', 'Audiobook'],
+  },
+  {
+    id: 'Puck',
+    name: 'Puck',
+    gender: 'male',
+    tone: 'Energetic & Crisp',
+    role: 'Commercial & Podcast',
+    description: 'Dynamic, friendly, and articulate speaker suited for technology podcasts, social media ads, and promos.',
+    tags: ['Energetic', 'Friendly', 'Podcast'],
+  },
+  {
+    id: 'Fenrir',
+    name: 'Fenrir',
+    gender: 'male',
+    tone: 'Deep & Authoritative',
+    role: 'Documentary & Cinema',
+    description: 'Resonant, powerful low-pitch voice that commands attention. Ideal for movie trailers, history, and news.',
+    tags: ['Deep', 'Authoritative', 'Cinematic'],
+  },
+  {
+    id: 'Aoede',
+    name: 'Aoede',
+    gender: 'female',
+    tone: 'Gentle & Meditative',
+    role: 'Poetry & Mindfulness',
+    description: 'Silky, calming female timbre. Inspires relaxation, mindfulness, and literary recitation.',
+    tags: ['Calm', 'Soothing', 'Poetic'],
+  },
+  {
+    id: 'Zephyr',
+    name: 'Zephyr',
+    gender: 'female',
+    tone: 'Modern & Vibrant',
+    role: 'Brand & Social Media',
+    description: 'Contemporary, upbeat voice with crystal-clear pronunciation. Great for YouTube shorts and tutorials.',
+    tags: ['Modern', 'Upbeat', 'Vibrant'],
+  },
+  {
+    id: 'Charon',
+    name: 'Charon',
+    gender: 'male',
+    tone: 'Calm & Profound',
+    role: 'Deep Narration',
+    description: 'Thoughtful, deep baritone voice with deliberate pacing. Outstanding for philosophical essays and audio guides.',
+    tags: ['Deep', 'Solemn', 'Documentary'],
+  },
+];
+
+export const SAMPLE_SCRIPTS: SampleScript[] = [
+  {
+    id: 'ur-1',
+    title: 'کہانی اور ترغیب (Story)',
+    category: 'Motivational',
+    language: 'ur',
+    text: 'زندگی ایک ایسا سفر ہے جہاں ہر موڑ پر نئے سبق اور نئے امکانات ہمارا انتظار کرتے ہیں۔ جب آپ اپنے خوابوں پر یقین رکھتے ہیں اور مستقل مزاجی سے محنت کرتے ہیں، تو کامیابی خود آپ کا راستہ تلاش کر لیتی ہے۔ کبھی مایوس نہ ہوں، کیونکہ ہر رات کے بعد ایک روشن صبح ضرور آتی ہے۔',
+  },
+  {
+    id: 'ur-2',
+    title: 'تجارتی اشتہار (Commercial Ad)',
+    category: 'Commercial',
+    language: 'ur',
+    text: 'کیا آپ اپنے کاروبار کو بلندیوں تک لے جانا چاہتے ہیں؟ وائس اوور پرو کے ساتھ اپنی ویڈیوز اور پوڈکاسٹس کو دیں ایک نئی زندگی۔ قدرتی اور اسٹوڈیو کوالٹی آواز کے ساتھ اپنے صارفین کا دل جیتیں، آج ہی آزمائیں!',
+  },
+  {
+    id: 'en-1',
+    title: 'Tech Product Launch',
+    category: 'Commercial',
+    language: 'en',
+    text: 'Welcome to the next generation of voice generation. Powered by state-of-the-art Gemini speech synthesis, VoiceOver Pro transforms your written ideas into broadcast-ready studio audio in seconds. Experience hyper-realistic intonation, pitch control, and instant WAV downloads.',
+  },
+  {
+    id: 'en-2',
+    title: 'Mindful Meditation Guide',
+    category: 'Wellness',
+    language: 'en',
+    text: 'Take a deep, slow breath in... and gently let it go. Feel your shoulders drop and allow your mind to settle into this present moment. There is nowhere you need to rush, nothing you need to fix right now. Just listen to the rhythm of your breath and find your inner peace.',
+  },
+  {
+    id: 'hi-1',
+    title: 'प्रेरणादायक संदेश (Inspiration)',
+    category: 'Motivational',
+    language: 'hi',
+    text: 'सफलता का रहस्य किसी जादुई शक्ति में नहीं, बल्कि हर दिन की गई छोटी-छोटी कोशिशों में छिपा होता है। जब तक आप रुकते नहीं, तब तक यह मायने नहीं रखता कि आप कितनी धीमी गति से चल रहे हैं। खुद पर विश्वास रखें और अपनी मंज़िल की ओर बढ़ते रहें।',
+  },
+  {
+    id: 'hi-2',
+    title: 'पोडकास्ट परिचय (Podcast Intro)',
+    category: 'Podcast',
+    language: 'hi',
+    text: 'नमस्ते दोस्तों! स्वागत है आपका आज के इस खास एपिसोड में। आज हम बात करेंगे नई तकनीकों और आर्टिफिशियल इंटेलिजेंस के उन चमत्कारों के बारे में जो हमारी दुनिया को हमेशा के लिए बदल रहे हैं। तो चलिए, बिना किसी देरी के शुरू करते हैं!',
+  },
+  {
+    id: 'ar-1',
+    title: 'حكمة ملهمة (Inspirational Wisdom)',
+    category: 'Wisdom',
+    language: 'ar',
+    text: 'إن النجاح ليس محطة نصل إليها، بل هو رحلة مستمرة من التعلم والإصرار. لا تخف من البدايات المتواضعة، فكل شجرة باسقة بدأت ببذرة صغيرة في باطن الأرض. ثق بقدراتك واصنع مستقبلك بيدك اليوم.',
+  },
+  {
+    id: 'ar-2',
+    title: 'إعلان تسويقي احترافي (Promo)',
+    category: 'Commercial',
+    language: 'ar',
+    text: 'ارتقِ بمحتواك الصوتي إلى آفاق جديدة مع فويس أوفر برو. تحويل فوري للنصوص إلى تعليق صوتي احترافي بنقاء استوديو فائق. اختر نبرتك المفضلة، وتحكم بالسرعة والإيقاع بكل سهولة.',
+  },
+];
+
+export const STYLE_PRESETS = [
+  { label: '🎙️ Studio Professional', value: 'Clear, studio-grade narration with professional broadcast cadence.' },
+  { label: '⚡ Energetic & Uplifting', value: 'Enthusiastic, energetic, and engaging voice with positive inflection.' },
+  { label: '🌿 Calm & Relaxing', value: 'Soft, soothing, and serene tone with gentle cadence.' },
+  { label: '🎬 Cinematic & Dramatic', value: 'Deep, dramatic storytelling tone with suspenseful articulation.' },
+  { label: '📚 Educational & Clear', value: 'Articulate, informative teacher style with precise pronunciation.' },
+];

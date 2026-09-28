@@ -1,0 +1,6 @@
+{
+  "name": "VoiceOver Pro - AI Text to Speech",
+  "description": "Convert scripts into natural, expressive studio-grade voiceovers in Urdu, English, Hindi, and Arabic using Gemini TTS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
