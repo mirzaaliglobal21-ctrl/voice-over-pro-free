@@ -105,7 +105,7 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({
         </div>
 
         {/* 4 Language Buttons */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl">
           {LANGUAGES.map((lang) => {
             const isSelected = lang.code === selectedLanguage;
             return (
@@ -113,7 +113,7 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({
                 key={lang.code}
                 type="button"
                 onClick={() => onSelectLanguage(lang.code)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm font-bold'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -121,7 +121,7 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({
               >
                 <span>{lang.flag}</span>
                 <span>{lang.nativeName}</span>
-                <span className="text-[10px] opacity-70 font-normal">({lang.name})</span>
+                <span className="text-[10px] opacity-75 font-normal">({lang.name})</span>
               </button>
             );
           })}
