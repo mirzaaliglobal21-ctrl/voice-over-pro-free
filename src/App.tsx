@@ -247,8 +247,8 @@ export default function App() {
 
         {/* Studio Workspace Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Script Editor & Controls (lg: 7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* Left Column: Script Editor & Controls (lg: 6 cols) */}
+          <div className="lg:col-span-6 space-y-6">
             {/* 1. Large Script Editor with Character Counter & RTL support */}
             <ScriptEditor
               text={text}
@@ -270,8 +270,8 @@ export default function App() {
             />
           </div>
 
-          {/* Right Column: Voice Selection & Generation CTA (lg: 5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Right Column: Voice Selection & Generation CTA (lg: 6 cols) */}
+          <div className="lg:col-span-6 space-y-6">
             {/* 3. Voice Selector with Previews */}
             <VoiceSelector
               selectedVoice={selectedVoice}
@@ -279,8 +279,24 @@ export default function App() {
               selectedLanguage={selectedLanguage}
             />
 
-            {/* 4. "Generate Voice" Action Button */}
+            {/* 4. "Generate Voice" Action Button & Inline Error */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-3">
+              {errorMessage && (
+                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 flex items-start justify-between gap-2.5 text-rose-800 dark:text-rose-200 text-xs animate-in fade-in">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                    <span className="font-medium leading-relaxed">{errorMessage}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setErrorMessage(null)}
+                    className="text-[11px] font-bold underline hover:opacity-80 shrink-0 cursor-pointer"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+
               <button
                 type="button"
                 onClick={handleGenerateVoice}
@@ -301,19 +317,19 @@ export default function App() {
               </button>
 
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 px-1">
-                <span>Model: Gemini 2.5 TTS / 3.8</span>
-                <span>Output: 24kHz Mono WAV</span>
+                <span>Model: Gemini 3.8 / 2.5 Flash TTS</span>
+                <span>Output: 24kHz Studio WAV</span>
               </div>
             </div>
+
+            {/* Audio Player directly under Generate button for immediate visibility */}
+            {currentAudio && (
+              <div ref={playerRef} className="animate-in fade-in slide-in-from-top-2">
+                <AudioPlayer currentAudio={currentAudio} />
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Audio Player Section (When audio is generated or loaded) */}
-        {currentAudio && (
-          <div ref={playerRef} className="pt-2 animate-in fade-in slide-in-from-bottom-4">
-            <AudioPlayer currentAudio={currentAudio} />
-          </div>
-        )}
 
         {/* Session Generation History */}
         <HistoryList

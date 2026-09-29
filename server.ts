@@ -150,10 +150,10 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
       ? `${style}. Spoken clearly in ${langName}, with ${paceDescription} and ${pitchDescription}.`
       : `High-quality studio voiceover spoken naturally and expressively in ${langName}. Clean diction with ${paceDescription} and ${pitchDescription}.`;
 
-    // Try canonical Gemini TTS models
+    // Try canonical Gemini TTS models (gemini-3.8-flash-lite-tts is the standard TTS model per guidelines)
     const modelsToTry = [
-      'gemini-2.5-flash-preview-tts',
       'gemini-3.8-flash-lite-tts',
+      'gemini-2.5-flash-preview-tts',
       'gemini-3.8-flash-tts',
     ];
 
@@ -192,7 +192,7 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
 
         const part = response.candidates?.[0]?.content?.parts?.[0];
         const rawBase64 = part?.inlineData?.data;
-        const sourceMime = part?.inlineData?.mimeType || 'audio/pcm;rate=24000';
+        const sourceMime = part?.inlineData?.mimeType || 'audio/wav';
 
         if (rawBase64) {
           const rawBuffer = Buffer.from(rawBase64, 'base64');
@@ -202,7 +202,7 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
             sampleRate = parseInt(rateMatch[1], 10);
           }
 
-          // Convert raw PCM to standard playable WAV with 44-byte RIFF header
+          // Unary Gemini TTS returns complete WAV or raw PCM: ensure valid RIFF WAV
           audioBuffer = pcmToWav(rawBuffer, sampleRate, 1, 16);
           detectedMimeType = 'audio/wav';
           break; // Success!
@@ -274,8 +274,8 @@ app.post('/api/tts/preview', async (req: Request, res: Response) => {
 
     const previewText = samplePhrases[language] || samplePhrases.en;
     const modelsToTry = [
-      'gemini-2.5-flash-preview-tts',
       'gemini-3.8-flash-lite-tts',
+      'gemini-2.5-flash-preview-tts',
       'gemini-3.8-flash-tts',
     ];
 

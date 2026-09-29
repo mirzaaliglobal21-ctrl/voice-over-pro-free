@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Volume2, Play, Square, UserCheck, Loader2, Sparkles } from 'lucide-react';
+import { Volume2, Play, Square, UserCheck, Loader2 } from 'lucide-react';
 import { VoiceOption, LanguageCode } from '../types';
 import { VOICES } from '../data/presets';
 
@@ -16,12 +16,13 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
 }) => {
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const [loadingVoiceId, setLoadingVoiceId] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
   const handlePreview = async (e: React.MouseEvent, voice: VoiceOption) => {
     e.stopPropagation();
+    setPreviewError(null);
 
-    // If currently playing this voice, stop it
     if (playingVoiceId === voice.id) {
       if (audioPlayerRef.current) {
         audioPlayerRef.current.pause();
@@ -42,8 +43,17 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
         }),
       });
 
-      const data = await res.json();
+      let data: any;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error(`Preview request failed (${res.status})`);
+      }
       setLoadingVoiceId(null);
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Preview failed');
+      }
 
       if (data.audioUrl) {
         if (!audioPlayerRef.current) {
@@ -59,10 +69,11 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
         await audioPlayerRef.current.play();
         setPlayingVoiceId(voice.id);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to preview voice:', err);
       setLoadingVoiceId(null);
       setPlayingVoiceId(null);
+      setPreviewError(err?.message || 'Preview audio load nahi ho saka.');
     }
   };
 
@@ -84,7 +95,21 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
         </div>
       </div>
 
-      {/* Grid of Voices: Clean 2 columns on tablets/desktop inside sidebar */}
+      {/* Preview Error Banner */}
+      {previewError && (
+        <div className="mb-3 p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/50 text-xs text-rose-700 dark:text-rose-300 flex items-center justify-between gap-2">
+          <span>{previewError}</span>
+          <button
+            type="button"
+            onClick={() => setPreviewError(null)}
+            className="text-[11px] font-bold underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Grid of Voices: Clean 1 column or 2 columns based on container width */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {VOICES.map((voice) => {
           const isSelected = selectedVoice === voice.id;
@@ -95,16 +120,16 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
             <div
               key={voice.id}
               onClick={() => onSelectVoice(voice.id)}
-              className={`relative cursor-pointer rounded-xl p-3 border transition-all text-left flex flex-col justify-between overflow-hidden group ${
+              className={`relative cursor-pointer rounded-xl p-3 border transition-all text-left flex flex-col justify-between group ${
                 isSelected
-                  ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-500 ring-2 ring-indigo-500/25 shadow-sm'
-                  : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/60 hover:bg-slate-50 dark:hover:bg-slate-900'
+                  ? 'bg-indigo-50/80 dark:bg-indigo-950/40 border-indigo-500 ring-2 ring-indigo-500/25 shadow-sm'
+                  : 'bg-slate-50/70 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/60 hover:bg-slate-100/50 dark:hover:bg-slate-900'
               }`}
             >
-              {/* Top Row: Avatar + Name + Badges + Preview Button */}
               <div>
-                <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-2 min-w-0">
+                {/* Header row: Avatar + Full Name + Status + Preview Button */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
                         voice.gender === 'female'
@@ -115,25 +140,23 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                       {voice.name[0]}
                     </div>
 
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1">
-                        <span className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">
-                          {voice.name}
-                        </span>
-                        {isSelected && (
-                          <UserCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                        )}
-                      </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                        {voice.name}
+                      </span>
+                      {isSelected && (
+                        <UserCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                      )}
                     </div>
                   </div>
 
-                  {/* Preview Button */}
+                  {/* Preview Button - Never truncates */}
                   <button
                     type="button"
                     onClick={(e) => handlePreview(e, voice)}
                     disabled={isLoading}
                     title={`Preview ${voice.name}'s voice`}
-                    className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold transition active:scale-95 cursor-pointer ${
+                    className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition active:scale-95 cursor-pointer ${
                       isPlaying
                         ? 'bg-rose-500 text-white shadow-xs animate-pulse'
                         : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 hover:bg-indigo-50 dark:hover:bg-slate-700 shadow-2xs'
@@ -156,17 +179,17 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                 </div>
 
                 {/* Subtitle / Gender & Role */}
-                <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                   <span
                     className={`inline-block text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                       voice.gender === 'female'
-                        ? 'bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400'
-                        : 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400'
+                        ? 'bg-pink-100/80 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300'
+                        : 'bg-blue-100/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
                     }`}
                   >
                     {voice.gender === 'female' ? 'Female' : 'Male'}
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                     {voice.role}
                   </span>
                 </div>

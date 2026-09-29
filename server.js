@@ -100,8 +100,8 @@ app.post("/api/tts/generate", async (req, res) => {
     const langName = languageNames[language] || "English";
     const speechStyle = style ? `${style}. Spoken clearly in ${langName}, with ${paceDescription} and ${pitchDescription}.` : `High-quality studio voiceover spoken naturally and expressively in ${langName}. Clean diction with ${paceDescription} and ${pitchDescription}.`;
     const modelsToTry = [
-      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-lite-tts",
+      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts"
     ];
     let lastError = null;
@@ -137,7 +137,7 @@ app.post("/api/tts/generate", async (req, res) => {
         });
         const part = response.candidates?.[0]?.content?.parts?.[0];
         const rawBase64 = part?.inlineData?.data;
-        const sourceMime = part?.inlineData?.mimeType || "audio/pcm;rate=24000";
+        const sourceMime = part?.inlineData?.mimeType || "audio/wav";
         if (rawBase64) {
           const rawBuffer = Buffer.from(rawBase64, "base64");
           let sampleRate = 24e3;
@@ -201,8 +201,8 @@ app.post("/api/tts/preview", async (req, res) => {
     };
     const previewText = samplePhrases[language] || samplePhrases.en;
     const modelsToTry = [
-      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-lite-tts",
+      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts"
     ];
     let audioBuffer = null;

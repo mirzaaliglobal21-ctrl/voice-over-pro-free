@@ -32,15 +32,27 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ currentAudio }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
-  // Sync audio source when currentAudio changes
+  // Sync audio source when currentAudio changes and auto-play
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = currentAudio.audioUrl;
       audioRef.current.load();
-      setIsPlaying(false);
       setCurrentTime(0);
       setPlaybackRate(currentAudio.speed || 1.0);
+      
+      // Auto-play the newly generated studio voice
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch((err) => {
+            console.log('Browser autoplay policy required user gesture:', err);
+            setIsPlaying(false);
+          });
+      }
     }
   }, [currentAudio.id, currentAudio.audioUrl]);
 
